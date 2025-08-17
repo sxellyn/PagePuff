@@ -12,7 +12,6 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 AlchemyBaseModel = declarative_base()
 
-#para obter a sessão do banco
 def get_db():
     db = SessionLocal()
     try:

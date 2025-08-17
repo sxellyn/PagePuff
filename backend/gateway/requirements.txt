@@ -1,9 +1,4 @@
-fastapi 
+fastapi
 uvicorn
 httpx
 python-dotenv
-
-#fastapi: para criar as rotas
-#uvicorn: servidor
-#httpx: para fazer requisições aos outros serviços
-#python-dotenv: para usar variáveis de ambiente

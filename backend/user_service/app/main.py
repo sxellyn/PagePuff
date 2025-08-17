@@ -5,6 +5,14 @@ from app.router import auth_router
 
 pagepuff = FastAPI()
 
+@pagepuff.get("/")
+async def root():
+    return {"message": "User Service - PagePuff"}
+
+@pagepuff.get("/health")
+async def health_check():
+    return {"status": "healthy", "service": "user"}
+
 pagepuff.include_router(user_router, prefix="/user", tags=["Users"])
 pagepuff.include_router(favorite_router, prefix="/favorite", tags=["Favorites"])
 pagepuff.include_router(auth_router.router)

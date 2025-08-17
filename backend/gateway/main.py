@@ -5,19 +5,16 @@ import httpx
 import os
 from dotenv import load_dotenv
 import time
-from typing import List
 import json
 
-# Carrega variáveis de ambiente
 load_dotenv()
 
 app = FastAPI(
     title="PagePuff Gateway",
-    description="API Gateway para o sistema PagePuff",
+    description="API Gateway for PagePuff system",
     version="1.0.0"
 )
 
-# Configuração CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=json.loads(os.getenv("ALLOWED_ORIGINS", '["http://localhost:3000"]')),
@@ -26,7 +23,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# URLs dos serviços
 SERVICES = {
     "user": os.getenv("USER_SERVICE_URL", "http://user_service:8000"),
     "manga": os.getenv("MANGA_SERVICE_URL", "http://manga_service:8000"),
@@ -34,7 +30,6 @@ SERVICES = {
     "recom": os.getenv("RECOM_SERVICE_URL", "http://recom_service:8000")
 }
 
-# Cliente HTTP para fazer requisições aos serviços
 http_client = httpx.AsyncClient(timeout=30.0)
 
 @app.on_event("shutdown")
@@ -52,7 +47,6 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    """Verifica a saúde de todos os serviços"""
     health_status = {}
     
     for service_name, service_url in SERVICES.items():
@@ -74,39 +68,42 @@ async def health_check():
         "timestamp": time.time()
     }
 
-# Roteamento para User Service
+@app.get("/debug")
+async def debug_env():
+    return {
+        "env_vars": {
+            "USER_SERVICE_URL": os.getenv("USER_SERVICE_URL"),
+            "MANGA_SERVICE_URL": os.getenv("MANGA_SERVICE_URL"),
+            "RATING_SERVICE_URL": os.getenv("RATING_SERVICE_URL"),
+            "RECOM_SERVICE_URL": os.getenv("RECOM_SERVICE_URL")
+        },
+        "services": SERVICES,
+        "dotenv_loaded": True
+    }
+
 @app.api_route("/user/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
 async def user_service_router(request: Request, path: str):
-    """Roteia todas as requisições para o user service"""
     return await route_request(request, "user", path)
 
-# Roteamento para Manga Service
 @app.api_route("/manga/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
 async def manga_service_router(request: Request, path: str):
-    """Roteia todas as requisições para o manga service"""
     return await route_request(request, "manga", path)
 
-# Roteamento para Rating Service
 @app.api_route("/rating/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
 async def rating_service_router(request: Request, path: str):
-    """Roteia todas as requisições para o rating service"""
     return await route_request(request, "rating", path)
 
-# Roteamento para Recom Service
 @app.api_route("/recom/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
 async def recom_service_router(request: Request, path: str):
-    """Roteia todas as requisições para o recom service"""
     return await route_request(request, "recom", path)
 
 async def route_request(request: Request, service_name: str, path: str):
-    """Função auxiliar para rotear requisições aos serviços"""
     if service_name not in SERVICES:
-        raise HTTPException(status_code=404, detail=f"Serviço {service_name} não encontrado")
+        raise HTTPException(status_code=404, detail=f"Service {service_name} not found")
     
     service_url = SERVICES[service_name]
     target_url = f"{service_url}/{path}"
     
-    # Obtém o corpo da requisição
     body = None
     if request.method in ["POST", "PUT", "PATCH"]:
         try:
@@ -114,17 +111,13 @@ async def route_request(request: Request, service_name: str, path: str):
         except:
             pass
     
-    # Obtém os headers
     headers = dict(request.headers)
-    # Remove headers que podem causar problemas
     headers.pop("host", None)
     headers.pop("content-length", None)
     
-    # Obtém os query parameters
     query_params = dict(request.query_params)
     
     try:
-        # Faz a requisição para o serviço
         response = await http_client.request(
             method=request.method,
             url=target_url,
@@ -133,7 +126,6 @@ async def route_request(request: Request, service_name: str, path: str):
             content=body
         )
         
-        # Retorna a resposta do serviço
         return JSONResponse(
             content=response.json() if response.headers.get("content-type", "").startswith("application/json") else response.text,
             status_code=response.status_code,
@@ -143,12 +135,12 @@ async def route_request(request: Request, service_name: str, path: str):
     except httpx.RequestError as e:
         raise HTTPException(
             status_code=503,
-            detail=f"Erro ao conectar com o serviço {service_name}: {str(e)}"
+            detail=f"Error connecting to service {service_name}: {str(e)}"
         )
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Erro interno do gateway: {str(e)}"
+            detail=f"Internal gateway error: {str(e)}"
         )
 
 if __name__ == "__main__":

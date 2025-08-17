@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Float, Text, JSON
-from config.database import AlchemyBaseModel
+from app.config.database import AlchemyBaseModel
 
 class Manga(AlchemyBaseModel):
     __tablename__ = "mangas"

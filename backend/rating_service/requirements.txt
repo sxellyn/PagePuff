@@ -4,10 +4,4 @@ sqlalchemy
 pymysql
 python-dotenv
 pydantic<2.0
-
-#fastapi: para criar as rotas
-#uvicorn: servidor
-#httpx: para fazer requisições aos outros serviços
-#python-dotenv: para usar variáveis de ambiente
-#sqlalchemy: abstração de banco de dados em Python
-#pydantic<2.0: para valida dados da api (fastapi)
+cryptography
