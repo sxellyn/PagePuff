@@ -18,5 +18,5 @@ def add_favorite(favorite: FavoriteRequest, db: Session = Depends(connect_db), c
     return new_fav
 
 @router.get("/favorites", response_model=List[FavoriteResponse])
-def get_favorites(db: Session = Depends(connect_db)):
-    return db.query(Favorite).filter(Favorite.user_id == 1).all()
+def get_favorites(db: Session = Depends(connect_db), current_user: User = Depends(get_current_user)):
+    return db.query(Favorite).filter(Favorite.user_id == current_user.id).all()

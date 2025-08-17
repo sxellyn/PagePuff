@@ -45,42 +45,6 @@ async def root():
         "version": "1.0.0"
     }
 
-@app.get("/health")
-async def health_check():
-    health_status = {}
-    
-    for service_name, service_url in SERVICES.items():
-        try:
-            response = await http_client.get(f"{service_url}/health")
-            health_status[service_name] = {
-                "status": "healthy" if response.status_code == 200 else "unhealthy",
-                "response_time": response.elapsed.total_seconds()
-            }
-        except Exception as e:
-            health_status[service_name] = {
-                "status": "unhealthy",
-                "error": str(e)
-            }
-    
-    return {
-        "gateway": "healthy",
-        "services": health_status,
-        "timestamp": time.time()
-    }
-
-@app.get("/debug")
-async def debug_env():
-    return {
-        "env_vars": {
-            "USER_SERVICE_URL": os.getenv("USER_SERVICE_URL"),
-            "MANGA_SERVICE_URL": os.getenv("MANGA_SERVICE_URL"),
-            "RATING_SERVICE_URL": os.getenv("RATING_SERVICE_URL"),
-            "RECOM_SERVICE_URL": os.getenv("RECOM_SERVICE_URL")
-        },
-        "services": SERVICES,
-        "dotenv_loaded": True
-    }
-
 @app.api_route("/user/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
 async def user_service_router(request: Request, path: str):
     return await route_request(request, "user", path)
