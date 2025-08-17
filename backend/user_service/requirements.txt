@@ -5,3 +5,14 @@ pymysql
 bcrypt
 python-jose[cryptography]
 python-dotenv
+pydantic<2.0
+python-multipart 
+
+#fastapi: para criar as rotas
+#uvicorn: servidor
+#python-dotenv: para usar variáveis de ambiente
+#bcrypt: para hash de senhas
+#python-jose: geração e validação de JWT
+#sqlalchemy: abstração de banco de dados em Python
+#pymysql: conector para o banco MySQL
+#pydantic<2.0: para valida dados da api (fastapi)

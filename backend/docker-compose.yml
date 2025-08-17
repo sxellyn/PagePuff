@@ -1,43 +1,51 @@
-version: '3.9'
+version: "3.8"
 
 services:
   user_service:
-    build: ./backend/user_service
+    build: ./user_service
     container_name: user_service
     ports:
       - "8000:8000"
     env_file:
-      - ./backend/user_service/.env
+      - ./user_service/.env
     depends_on:
       - mysql
+    volumes:
+      - ./user_service:/app
 
   manga_service:
-    build: ./backend/manga_service
+    build: ./manga_service
     container_name: manga_service
     ports:
       - "8001:8000"
     env_file:
-      - ./backend/manga_service/.env
+      - ./manga_service/.env
     depends_on:
       - mysql
+    volumes:
+      - ./manga_service:/app
 
   rating_service:
-    build: ./backend/rating_service
+    build: ./rating_service
     container_name: rating_service
     ports:
       - "8002:8000"
     env_file:
-      - ./backend/rating_service/.env
+      - ./rating_service/.env
     depends_on:
       - mysql
+    volumes:
+      - ./rating_service:/app
 
   recom_service:
-    build: ./backend/recom_service
+    build: ./recom_service
     container_name: recom_service
     ports:
       - "8003:8000"
     env_file:
-      - ./backend/recom_service/.env
+      - ./recom_service/.env
+    volumes:
+      - ./recom_service:/app
 
   gateway:
     build: ./gateway
@@ -51,6 +59,8 @@ services:
       - manga_service
       - rating_service
       - recom_service
+    volumes:
+      - ./gateway:/app
 
   mysql:
     image: mysql:8.0
@@ -63,6 +73,10 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+      # 🔽 Todos os scripts .sql colocados aqui serão executados AUTOMATICAMENTE
+      - ./user_service/sql:/docker-entrypoint-initdb.d/user
+      - ./manga_service/sql:/docker-entrypoint-initdb.d/manga
+      - ./rating_service/sql:/docker-entrypoint-initdb.d/rating
 
 volumes:
   mysql_data:

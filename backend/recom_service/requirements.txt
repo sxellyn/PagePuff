@@ -4,3 +4,11 @@ scikit-learn
 pandas
 numpy
 python-dotenv
+pydantic<2.0
+
+#fastapi: para criar as rotas
+#uvicorn: servidor
+#scikit-learn: KMeans e vetorização
+#pandas e numpy: manipulação de dados
+#python-dotenv: para usar variáveis de ambiente
+#pydantic<2.0: para valida dados da api (fastapi)
