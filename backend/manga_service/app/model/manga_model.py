@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, Text, JSON
+from sqlalchemy import Column, Integer, String, Float, Text
 from app.config.database import AlchemyBaseModel
 
 class Manga(AlchemyBaseModel):
@@ -9,5 +9,5 @@ class Manga(AlchemyBaseModel):
     description = Column(Text, nullable=True)
     rating = Column(Float, nullable=True)
     year = Column(Integer, nullable=True)
-    tags = Column(JSON, nullable=True)
+    tags = Column(Text, nullable=True)
     cover = Column(String(512), nullable=True)
