@@ -10,5 +10,6 @@ class MangaResponse(BaseModel):
     tags: Optional[List[str]] = None
     cover: Optional[str] = None
 
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }
