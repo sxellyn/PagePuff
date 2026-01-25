@@ -4,7 +4,6 @@ from fastapi.responses import JSONResponse
 import httpx
 import os
 from dotenv import load_dotenv
-import time
 import json
 
 load_dotenv()
@@ -26,7 +25,6 @@ app.add_middleware(
 SERVICES = {
     "user": os.getenv("USER_SERVICE_URL", "http://user_service:8000"),
     "manga": os.getenv("MANGA_SERVICE_URL", "http://manga_service:8000"),
-    "rating": os.getenv("RATING_SERVICE_URL", "http://rating_service:8000"),
     "recom": os.getenv("RECOM_SERVICE_URL", "http://recom_service:8000")
 }
 
@@ -39,7 +37,7 @@ async def shutdown_event():
 @app.get("/")
 async def root():
     return {
-        "message": "🌸 PagePuff Gateway",
+        "message": "PagePuff Gateway",
         "status": "online",
         "services": list(SERVICES.keys()),
         "version": "1.0.0"
@@ -52,10 +50,6 @@ async def user_service_router(request: Request, path: str):
 @app.api_route("/manga/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
 async def manga_service_router(request: Request, path: str):
     return await route_request(request, "manga", path)
-
-@app.api_route("/rating/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
-async def rating_service_router(request: Request, path: str):
-    return await route_request(request, "rating", path)
 
 @app.api_route("/recom/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
 async def recom_service_router(request: Request, path: str):
@@ -99,7 +93,7 @@ async def route_request(request: Request, service_name: str, path: str):
     except httpx.RequestError as e:
         raise HTTPException(
             status_code=503,
-            detail=f"Error connecting to service {service_name}: {str(e)}"
+            detail=f"Error connecting to service {service_name} at {target_url}: {str(e)}"
         )
     except Exception as e:
         raise HTTPException(

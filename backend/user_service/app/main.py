@@ -13,6 +13,6 @@ async def root():
 async def health_check():
     return {"status": "healthy", "service": "user"}
 
-pagepuff.include_router(user_router, prefix="/user", tags=["Users"])
-pagepuff.include_router(favorite_router, prefix="/favorite", tags=["Favorites"])
-pagepuff.include_router(auth_router.router)
+pagepuff.include_router(user_router, tags=["Users"])
+pagepuff.include_router(favorite_router, tags=["Favorites"])  # Sem prefixo, gateway já roteia /user/favorites
+pagepuff.include_router(auth_router.router, prefix="")  # login sem prefixo

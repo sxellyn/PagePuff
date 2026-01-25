@@ -8,6 +8,7 @@ services:
       - ./user_service/.env
     depends_on:
       - mysql
+      - init_db
     volumes:
       - ./user_service:/app
 
@@ -20,20 +21,9 @@ services:
       - ./manga_service/.env
     depends_on:
       - mysql
+      - init_db
     volumes:
       - ./manga_service:/app
-
-  rating_service:
-    build: ./rating_service
-    container_name: rating_service
-    ports:
-      - "8002:8000"
-    env_file:
-      - ./rating_service/.env
-    depends_on:
-      - mysql
-    volumes:
-      - ./rating_service:/app
 
   recom_service:
     build: ./recom_service
@@ -42,6 +32,9 @@ services:
       - "8003:8000"
     env_file:
       - ./recom_service/.env
+    depends_on:
+      - mysql
+      - init_db
     volumes:
       - ./recom_service:/app
 
@@ -49,13 +42,12 @@ services:
     build: ./gateway
     container_name: gateway
     ports:
-      - "8080:8000"
+      - "8081:8000"
     env_file:
       - ./gateway/.env
     depends_on:
       - user_service
       - manga_service
-      - rating_service
       - recom_service
     volumes:
       - ./gateway:/app
@@ -71,9 +63,23 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./user_service/sql:/docker-entrypoint-initdb.d/user
-      - ./manga_service/sql:/docker-entrypoint-initdb.d/manga
-      - ./rating_service/sql:/docker-entrypoint-initdb.d/rating
+      - ./sql/init_all_tables.sql:/docker-entrypoint-initdb.d/00-init-all-tables.sql
+      - ./manga_service/sql/MANGAPOPULATE.sql:/docker-entrypoint-initdb.d/01-populate-mangas.sql
+
+  init_db:
+    build: ./init_db_service
+    container_name: init_db
+    depends_on:
+      - mysql
+    volumes:
+      - ./sql/init_all_tables.sql:/init-scripts/init_all_tables.sql
+      - ./manga_service/sql/MANGAPOPULATE.sql:/init-scripts/MANGAPOPULATE.sql
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=root
+      - MYSQL_DATABASE=pagepuff
+    restart: "no"
 
 volumes:
   mysql_data:

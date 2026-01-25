@@ -5,3 +5,6 @@ pandas
 numpy
 python-dotenv
 pydantic<2.0
+sqlalchemy
+pymysql
+cryptography

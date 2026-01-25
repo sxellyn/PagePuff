@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, Float, Text, JSON
+from sqlalchemy import Column, Integer, String, Float, Text
 from app.config.database import AlchemyBaseModel
+import json
 
 class Manga(AlchemyBaseModel):
     __tablename__ = "mangas"
@@ -9,5 +10,17 @@ class Manga(AlchemyBaseModel):
     description = Column(Text, nullable=True)
     rating = Column(Float, nullable=True)
     year = Column(Integer, nullable=True)
-    tags = Column(JSON, nullable=True)
+    tags = Column(Text, nullable=True)  # TEXT no banco, não JSON
     cover = Column(String(512), nullable=True)
+    
+    def get_tags(self):
+        """Converte tags de string para lista"""
+        if not self.tags:
+            return []
+        try:
+            if isinstance(self.tags, str):
+                tags_str = self.tags.replace("'", '"')
+                return json.loads(tags_str)
+            return self.tags
+        except:
+            return []

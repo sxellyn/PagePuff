@@ -1,0 +1,580 @@
+.mangas-page {
+  width: 100%;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.page-header h1 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 2rem;
+  color: var(--text);
+}
+
+.search-filters {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.search-box {
+  position: relative;
+  flex: 1;
+  max-width: 400px;
+  min-width: 200px;
+}
+
+.category-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.category-filter label {
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.category-select {
+  padding: 0.8rem 1rem;
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  min-width: 200px;
+}
+
+.category-select:focus {
+  outline: none;
+  border-color: var(--primary-dark);
+  box-shadow: 0 0 0 3px var(--shadow);
+  background: var(--primary-light);
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-light);
+}
+
+.search-box input {
+  width: 100%;
+  padding: 0.8rem 1rem 0.8rem 3rem;
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  font-size: 1rem;
+  transition: all 0.2s;
+  font-family: inherit;
+  background: var(--surface);
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: var(--primary-dark);
+  box-shadow: 0 0 0 3px var(--shadow);
+  background: var(--primary-light);
+}
+
+.mangas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+  contain: layout style paint;
+}
+
+.manga-card-wrapper {
+  position: relative;
+  contain: layout style paint;
+}
+
+.manga-card {
+  background: var(--surface);
+  border-radius: 30px;
+  overflow: hidden;
+  box-shadow: 0 8px 25px var(--shadow-soft);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  text-decoration: none;
+  color: inherit;
+  border: 3px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  will-change: transform;
+}
+
+.manga-card:hover {
+  transform: translateY(-5px) translateZ(0);
+  box-shadow: 0 12px 35px var(--shadow);
+  border-color: var(--primary-dark);
+}
+
+.manga-card-favorite-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  border: 3px solid var(--primary-dark);
+  background: var(--surface);
+  color: var(--primary-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  z-index: 10;
+  box-shadow: 0 4px 15px var(--shadow-soft);
+  font-size: 1.2rem;
+  padding: 0;
+  will-change: transform;
+}
+
+.manga-card-favorite-btn:hover:not(:disabled) {
+  background: var(--primary);
+  color: var(--text);
+  transform: scale(1.1) translateZ(0);
+  box-shadow: 0 5px 18px var(--shadow);
+  border-color: var(--primary-dark);
+}
+
+.manga-card-favorite-btn.active {
+  background: var(--error);
+  color: var(--surface);
+  border-color: var(--error-dark);
+  box-shadow: 0 6px 20px rgba(237, 112, 126, 0.3);
+  animation: heartbeat 3s ease-in-out infinite;
+  will-change: transform;
+}
+
+.manga-card-favorite-btn.active:hover {
+  background: var(--error-dark);
+  transform: scale(1.1) translateZ(0);
+  animation: none;
+}
+
+.manga-card-favorite-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: scale(0.95);
+}
+
+.manga-card-favorite-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.manga-cover {
+  width: 100%;
+  height: 350px;
+  overflow: hidden;
+  background: var(--background);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.manga-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.manga-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--primary-light), var(--accent));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-light);
+  opacity: 0.7;
+  border: 2px solid var(--border);
+}
+
+.manga-info {
+  padding: 1.5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.manga-info h3 {
+  font-size: 1.3rem;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+  line-height: 1.3;
+}
+
+.manga-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--warning-dark);
+  font-weight: 600;
+}
+
+.manga-year {
+  color: var(--text-light);
+  font-size: 0.9rem;
+}
+
+.manga-description {
+  color: var(--text-light);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-top: 0.5rem;
+}
+
+.manga-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
+.tag {
+  background: var(--accent);
+  color: var(--primary-dark);
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: 1px solid var(--border);
+}
+
+.loading-container,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  color: var(--text-light);
+  background: var(--gradient-cloud);
+  border-radius: 30px;
+  border: 3px solid var(--border);
+  box-shadow: 0 8px 25px var(--shadow-soft);
+  position: relative;
+  overflow: hidden;
+}
+
+.empty-state::before {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: 30px;
+  font-size: 2rem;
+  opacity: 0.3;
+  animation: float 3s ease-in-out infinite;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.empty-state::after {
+  content: '💖';
+  position: absolute;
+  bottom: 20px;
+  right: 30px;
+  font-size: 1.5rem;
+  opacity: 0.3;
+  animation: float 3s ease-in-out infinite 1.5s;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.loading-spinner {
+  width: 60px;
+  height: 60px;
+  position: relative;
+  margin-bottom: 1.5rem;
+  margin: 0 auto 1.5rem;
+  border: none !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+.loading-spinner::before {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  margin-top: -4px;
+  margin-left: -4px;
+  background: transparent;
+  box-shadow:
+    0 -26px 0 0 #B04C5A,
+    13px -23px 0 0 #B04C5A,
+    23px -13px 0 0 #EB8E99,
+    26px 0 0 0 #ED707E,
+    23px 13px 0 0 #FFC5CC,
+    13px 23px 0 0 #FFDDE2,
+    0 26px 0 0 #FDF1F1,
+    -13px 23px 0 0 #FDF1F1,
+    -23px 13px 0 0 #FDF1F1,
+    -26px 0 0 0 #FDF1F1,
+    -23px -13px 0 0 #FDF1F1,
+    -13px -23px 0 0 #FFDDE2;
+  animation: spin 1.2s linear infinite;
+}
+
+.loading-spinner::after {
+  display: none;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  25% { transform: scale(1.1); }
+  50% { transform: scale(1); }
+  75% { transform: scale(1.05); }
+}
+
+.error-banner {
+  background: linear-gradient(135deg, var(--error) 0%, var(--error-dark) 100%);
+  color: var(--surface);
+  padding: 1.5rem;
+  border-radius: 25px;
+  text-align: center;
+  margin-bottom: 2rem;
+  border: 3px solid var(--error-dark);
+  box-shadow: 0 8px 25px rgba(237, 112, 126, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.error-banner::before {
+  content: '💔';
+  position: absolute;
+  top: 10px;
+  left: 20px;
+  font-size: 1.5rem;
+  opacity: 0.5;
+}
+
+.error-banner::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  font-size: 1.2rem;
+  opacity: 0.5;
+}
+
+@media (max-width: 768px) {
+  .mangas-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-box {
+    max-width: 100%;
+  }
+
+  .category-filter {
+    width: 100%;
+  }
+
+  .category-select {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .pagination-controls-top {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .pagination-controls {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .pagination-numbers {
+    flex-wrap: wrap;
+  }
+}
+
+.pagination-controls-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: var(--gradient-cloud);
+  border-radius: 20px;
+  border: 3px solid var(--border);
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.items-per-page-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.items-per-page-selector label {
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.items-per-page-select {
+  padding: 0.5rem 1rem;
+  border: 2px solid var(--border);
+  border-radius: 15px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.items-per-page-select:focus {
+  outline: none;
+  border-color: var(--primary-dark);
+  box-shadow: 0 0 0 3px var(--shadow);
+}
+
+.pagination-info {
+  color: var(--text);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: var(--gradient-cloud);
+  border-radius: 25px;
+  border: 3px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.pagination-btn {
+  padding: 0.8rem 1.5rem;
+  background: var(--gradient-primary);
+  color: var(--text);
+  border: 3px solid var(--primary-dark);
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  will-change: transform;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--shadow);
+  background: var(--primary-dark);
+  color: var(--surface);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.pagination-numbers {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.pagination-number {
+  min-width: 45px;
+  height: 45px;
+  padding: 0.5rem;
+  background: var(--surface);
+  color: var(--text);
+  border: 3px solid var(--border);
+  border-radius: 15px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  will-change: transform;
+}
+
+.pagination-number:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary-dark);
+  box-shadow: 0 4px 15px var(--shadow);
+}
+
+.pagination-number.active {
+  background: var(--gradient-primary);
+  border-color: var(--primary-dark);
+  color: var(--text);
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px var(--shadow);
+}
