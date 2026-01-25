@@ -35,6 +35,109 @@ Nosso sistema de recomendação combina algoritmos de **K-Means clustering** com
 
 ---
 
+## ✨ Como Rodar a Aplicação
+
+### Pré-requisitos
+
+- [Docker](https://www.docker.com/get-started) e Docker Compose instalados
+- [Node.js](https://nodejs.org/) (versão 18 ou superior) e npm para o frontend
+
+### Passo 1: Clonar o Repositório
+
+```bash
+git clone <url-do-repositorio>
+cd PagePuff
+```
+
+### Passo 2: Configurar Variáveis de Ambiente
+
+#### Backend
+
+Crie os arquivos `.env` nos seguintes diretórios (ou copie dos exemplos existentes):
+
+**`backend/user_service/.env`**
+```env
+DATABASE_URL=mysql+pymysql://root:root@mysql/pagepuff
+SECRET_KEY=MEUDEUSDOCEU
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+```
+
+**`backend/manga_service/.env`**
+```env
+DATABASE_URL=mysql+pymysql://root:root@mysql/pagepuff
+```
+
+**`backend/recom_service/.env`**
+```env
+DATABASE_URL=mysql+pymysql://root:root@mysql/pagepuff
+RECOMMENDER_MODEL_PATH=./app/recom_service/model.pkl
+```
+
+**`backend/gateway/.env`**
+```env
+MANGA_SERVICE_URL=http://manga_service:8000
+USER_SERVICE_URL=http://user_service:8000
+RECOM_SERVICE_URL=http://recom_service:8000
+ALLOWED_ORIGINS=["http://localhost:3000"]
+```
+
+#### Frontend
+
+**`frontend/.env`**
+```env
+VITE_API_URL=http://localhost:8081
+```
+
+### Passo 3: Iniciar os Serviços Backend
+
+No diretório `backend`, execute:
+
+```bash
+docker-compose up --build
+```
+
+Isso irá:
+- Criar e iniciar o banco de dados MySQL
+- Inicializar as tabelas e popular com dados iniciais
+- Iniciar todos os microserviços (user_service, manga_service, recom_service)
+- Iniciar o API Gateway na porta 8081
+
+### Passo 4: Iniciar o Frontend
+
+Em um novo terminal, no diretório `frontend`, execute:
+
+```bash
+npm install
+npm run dev
+```
+
+O frontend estará disponível em `http://localhost:3000`
+
+### Acessos aos Serviços
+
+- **Frontend**: http://localhost:3000
+- **API Gateway**: http://localhost:8081
+- **User Service**: http://localhost:8000
+- **Manga Service**: http://localhost:8001
+- **Recommendation Service**: http://localhost:8003
+- **MySQL**: localhost:3306 (usuário: `root`, senha: `root`, database: `pagepuff`)
+
+### Parar os Serviços
+
+Para parar todos os serviços:
+
+```bash
+# No diretório backend
+docker-compose down
+```
+
+Para parar e remover volumes (limpar banco de dados):
+
+```bash
+docker-compose down -v
+```
+
 ## 🌱 Em desenvolvimento...
 
 O PagePuff está sendo construído com muito carinho e cuidado por quem ama mangás! 💕🍥
