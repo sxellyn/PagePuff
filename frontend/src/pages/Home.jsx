@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { FaBook, FaHeart, FaStar, FaSearch } from 'react-icons/fa'
+import { FaBook, FaHeart, FaStar } from 'react-icons/fa'
 import './Home.css'
 
 const Home = () => {
@@ -63,8 +63,11 @@ const Home = () => {
             <div className="feature-icon">
               <FaBook />
             </div>
-            <h3>Complete Library</h3>
-            <p>Explore thousands of mangas and manhwas organized by genre, author, and more.</p>
+            <h3>Mangas and Search</h3>
+            <p>
+              Explore thousands of mangas and manhwas organized by genre, author, and more.
+              Find new titles by searching through our extensive collection.
+            </p>
           </Link>
 
           <Link to="/favorites" className="feature-card">
@@ -82,14 +85,6 @@ const Home = () => {
             <h3>Recommendations</h3>
             <p>Discover personalized suggestions based on your reading habits.</p>
           </Link>
-
-          <div className="feature-card">
-            <div className="feature-icon">
-              <FaSearch />
-            </div>
-            <h3>Search & Explore</h3>
-            <p>Find new mangas by searching through our extensive collection.</p>
-          </div>
         </div>
       </section>
     </div>
