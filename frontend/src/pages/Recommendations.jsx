@@ -116,9 +116,12 @@ const Recommendations = () => {
         </h1>
       </div>
 
-      {stats && (
+      {stats && recommendations.length > 0 && stats.model_trained && (
         <div className="recommendations-stats">
-          <p>Based on {stats.users_in_model || 0} users with similar tastes</p>
+          <p>
+            Com base em {stats.users_in_model || 0} usuários com perfis parecidos no
+            modelo colaborativo
+          </p>
         </div>
       )}
 
