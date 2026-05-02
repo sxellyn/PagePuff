@@ -1,7 +1,3 @@
-"""
-Database initialization service
-Ensures all tables are created
-"""
 import time
 import pymysql
 import os
@@ -9,7 +5,6 @@ import bcrypt
 from pathlib import Path
 
 def wait_for_mysql(max_retries=30):
-    """Waits for MySQL to be ready"""
     for i in range(max_retries):
         try:
             conn = pymysql.connect(
@@ -28,7 +23,6 @@ def wait_for_mysql(max_retries=30):
     return False
 
 def execute_sql_file(conn, file_path):
-    """Executes a SQL file"""
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             sql = f.read()
@@ -49,7 +43,6 @@ def execute_sql_file(conn, file_path):
         print(f"Error executing {file_path}: {e}")
 
 def create_demo_users(conn):
-    """Creates demo user groups with varied favorites"""
     try:
         cursor = conn.cursor()
         
@@ -201,7 +194,31 @@ def main():
         init_file = Path("/init-scripts/init_all_tables.sql")
         if init_file.exists():
             execute_sql_file(conn, init_file)
-        
+
+        cursor = conn.cursor()
+        cursor.execute("SHOW COLUMNS FROM users LIKE 'avatar_blob'")
+        if not cursor.fetchone():
+            try:
+                cursor.execute(
+                    "ALTER TABLE users ADD COLUMN avatar_blob MEDIUMBLOB NULL, "
+                    "ADD COLUMN avatar_mime VARCHAR(64) NULL"
+                )
+                conn.commit()
+                print("Migration: added users.avatar_blob, avatar_mime")
+            except Exception as e:
+                conn.rollback()
+                print(f"Migration avatar_blob: {e}")
+        cursor.execute("SHOW COLUMNS FROM users LIKE 'avatar_url'")
+        if cursor.fetchone():
+            try:
+                cursor.execute("ALTER TABLE users DROP COLUMN avatar_url")
+                conn.commit()
+                print("Migration: dropped legacy users.avatar_url")
+            except Exception as e:
+                conn.rollback()
+                print(f"Migration drop avatar_url: {e}")
+        cursor.close()
+
         cursor = conn.cursor()
         cursor.execute("SELECT COUNT(*) FROM mangas")
         manga_count = cursor.fetchone()[0]

@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
@@ -18,7 +17,6 @@ class KMeansRecommender:
         self.kmeans = None
         self.scaler = StandardScaler()
         self.user_clusters = {}
-        self.manga_features = {}
 
     @staticmethod
     def parse_tags_cell(tags_raw) -> List[str]:
@@ -56,7 +54,6 @@ class KMeansRecommender:
 
     @staticmethod
     def tag_based_recommendations(user_id: int, db: Session, limit: int = 10) -> List[int]:
-        """Content-based: rank mangas not yet favorited by tag overlap with user's favorites."""
         profile_tags = KMeansRecommender._user_profile_tags_lower(user_id, db)
         cand_q = text(
             """
@@ -97,11 +94,6 @@ class KMeansRecommender:
         return (ordered + rest)[:limit]
 
     def prepare_user_features(self, db: Session) -> pd.DataFrame:
-        """Prepares user features based on their favorites.
-
-        Tag dimensions are aligned globally: column g_tag_i is always the same tag
-        (one of the most frequent tags in the favorites dataset) for every user.
-        """
         query = text(
             """
             SELECT
@@ -119,31 +111,7 @@ class KMeansRecommender:
         data = result.fetchall()
 
         if not data:
-            print("No favorites found in database!")
-            debug_query = text("SELECT COUNT(*) FROM favorites")
-            fav_count = db.execute(debug_query).scalar()
-            print(f"   Total favorites in table: {fav_count}")
-
-            if fav_count > 0:
-                debug_query2 = text(
-                    """
-                    SELECT COUNT(*)
-                    FROM favorites f
-                    LEFT JOIN mangas m ON f.manga_id = m.id
-                    WHERE m.id IS NULL
-                    """
-                )
-                orphan_favs = db.execute(debug_query2).scalar()
-                if orphan_favs > 0:
-                    print(f"   {orphan_favs} favorites without corresponding manga!")
-
             return pd.DataFrame()
-
-        unique_users = len(set(row[0] for row in data))
-        print(f"Found {len(data)} favorites from {unique_users} users")
-
-        sample_users = list(set(row[0] for row in data))[:5]
-        print(f"   Example user_ids: {sample_users}")
 
         df = pd.DataFrame(data, columns=["user_id", "manga_id", "rating", "year", "tags"])
         df["tags"] = df["tags"].apply(self.parse_tags_cell)
@@ -185,7 +153,6 @@ class KMeansRecommender:
         return pd.DataFrame(user_features)
 
     def train(self, db: Session):
-        """Trains the K-Means model with user data"""
         try:
             user_features = self.prepare_user_features(db)
 
@@ -210,40 +177,26 @@ class KMeansRecommender:
 
             self.user_clusters = dict(zip(user_features["user_id"], clusters))
 
-            print(f"Model trained with {len(user_features)} users in {actual_clusters} clusters")
             return True
-        except Exception as e:
-            print(f"Error training K-Means: {e}")
-            import traceback
-
-            traceback.print_exc()
+        except Exception:
             return False
 
     def get_recommendations(self, user_id: int, db: Session, limit: int = 10) -> List[int]:
-        """Returns manga recommendations for a user"""
         if not self.kmeans or user_id not in self.user_clusters:
-            print(f"Model not trained or user {user_id} is not in the model")
             return []
 
         user_cluster = self.user_clusters[user_id]
-        print(f"User {user_id} is in cluster {user_cluster}")
 
         similar_users = [
             uid for uid, cluster in self.user_clusters.items() if cluster == user_cluster and uid != user_id
         ]
 
-        print(f"   Found {len(similar_users)} similar users in cluster {user_cluster}")
-
         if not similar_users:
-            print(f"No similar users found in cluster {user_cluster}")
-            print(f"   Trying to find users from other clusters...")
-
             all_other_users = [
                 uid for uid, cluster in self.user_clusters.items() if cluster != user_cluster and uid != user_id
             ]
 
             if all_other_users:
-                print(f"   Found {len(all_other_users)} users in other clusters")
                 if len(all_other_users) == 1:
                     query = text(
                         """
@@ -283,27 +236,11 @@ class KMeansRecommender:
 
                 recommendations = [row[0] for row in result.fetchall()]
                 recommendations = self._rerank_ids_by_profile_tags(user_id, recommendations, db, limit)
-                print(f"   Found {len(recommendations)} recommendations from other clusters (reranked by tags)")
 
                 if recommendations:
                     return recommendations
 
-            print(f"   Using tag-based fallback (replacing global popularity)")
             return self.tag_based_recommendations(user_id, db, limit)
-
-        user_favs_query = text("SELECT COUNT(*) FROM favorites WHERE user_id = :user_id")
-        user_fav_count = db.execute(user_favs_query, {"user_id": user_id}).scalar()
-        print(f"   User {user_id} has {user_fav_count} favorites")
-
-        if len(similar_users) == 1:
-            similar_favs_query = text("SELECT COUNT(*) FROM favorites WHERE user_id = :similar_user")
-            similar_fav_count = db.execute(similar_favs_query, {"similar_user": similar_users[0]}).scalar()
-        else:
-            similar_favs_query = text("SELECT COUNT(*) FROM favorites WHERE user_id IN :similar_users")
-            similar_fav_count = db.execute(
-                similar_favs_query, {"similar_users": tuple(similar_users)}
-            ).scalar()
-        print(f"   Similar users have {similar_fav_count} favorites in total")
 
         if len(similar_users) == 1:
             user_favs_subquery = text("SELECT manga_id FROM favorites WHERE user_id = :user_id")
@@ -328,51 +265,30 @@ class KMeansRecommender:
             else:
                 recommendations = []
 
-            recommendations = self._rerank_ids_by_profile_tags(user_id, recommendations, db, limit)
+            return self._rerank_ids_by_profile_tags(user_id, recommendations, db, limit)
 
-            print(
-                f"   User {similar_users[0]} has {len(similar_user_favs)} favorites, "
-                f"{len(available_mangas)} available for recommendation"
+        query = text(
+            """
+            SELECT DISTINCT f.manga_id, COUNT(*) as popularity
+            FROM favorites f
+            WHERE f.user_id IN :similar_users
+            AND f.manga_id NOT IN (
+                SELECT manga_id FROM favorites WHERE user_id = :user_id
             )
-            return recommendations
-        else:
-            query = text(
-                """
-                SELECT DISTINCT f.manga_id, COUNT(*) as popularity
-                FROM favorites f
-                WHERE f.user_id IN :similar_users
-                AND f.manga_id NOT IN (
-                    SELECT manga_id FROM favorites WHERE user_id = :user_id
-                )
-                GROUP BY f.manga_id
-                ORDER BY popularity DESC, RAND()
-                LIMIT :limit
-                """
-            )
-            result = db.execute(
-                query,
-                {"similar_users": tuple(similar_users), "user_id": user_id, "limit": limit},
-            )
+            GROUP BY f.manga_id
+            ORDER BY popularity DESC, RAND()
+            LIMIT :limit
+            """
+        )
+        result = db.execute(
+            query,
+            {"similar_users": tuple(similar_users), "user_id": user_id, "limit": limit},
+        )
 
         recommendations = [row[0] for row in result.fetchall()]
         recommendations = self._rerank_ids_by_profile_tags(user_id, recommendations, db, limit)
 
-        unique_manga_query = text(
-            """
-            SELECT COUNT(DISTINCT manga_id)
-            FROM favorites
-            WHERE user_id IN :similar_users
-            """
-        )
-        unique_manga_count = db.execute(
-            unique_manga_query, {"similar_users": tuple(similar_users)}
-        ).scalar()
-
-        print(f"   Similar users have {unique_manga_count} unique mangas")
-        print(f"   Found {len(recommendations)} recommendations after filtering user favorites")
-
         if len(recommendations) == 0:
-            print(f"   Trying tag-based fallback")
             return self.tag_based_recommendations(user_id, db, limit)
 
         return recommendations

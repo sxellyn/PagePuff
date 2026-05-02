@@ -124,6 +124,38 @@
   font-weight: 500;
 }
 
+.btn-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  border: 2px solid var(--primary-dark);
+  border-radius: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  text-decoration: none;
+  font-size: 0.95rem;
+  background: var(--surface);
+  color: var(--primary-dark);
+  will-change: transform;
+}
+
+.btn-profile:hover {
+  background: var(--primary-light);
+  transform: translateY(-2px) translateZ(0);
+  box-shadow: 0 4px 12px var(--shadow-soft);
+}
+
+.btn-profile-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--primary-dark);
+  flex-shrink: 0;
+}
+
 .btn-logout {
   background: var(--error);
   color: var(--surface);
@@ -152,7 +184,8 @@
   .nav-link span,
   .btn-login span,
   .btn-register span,
-  .btn-logout span {
+  .btn-logout span,
+  .btn-profile span {
     display: none;
   }
 

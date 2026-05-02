@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 import httpx
 import os
 from dotenv import load_dotenv
@@ -83,11 +83,31 @@ async def route_request(request: Request, service_name: str, path: str):
             headers=headers,
             content=body
         )
-        
-        return JSONResponse(
-            content=response.json() if response.headers.get("content-type", "").startswith("application/json") else response.text,
+
+        content_type = (response.headers.get("content-type") or "").split(";")[0].strip()
+        hop_by_hop = {"connection", "transfer-encoding", "keep-alive", "te", "trailers", "upgrade"}
+        out_headers = {
+            k: v
+            for k, v in response.headers.items()
+            if k.lower() not in hop_by_hop
+        }
+
+        if content_type == "application/json":
+            try:
+                payload = response.json()
+            except Exception:
+                payload = response.text
+            return JSONResponse(
+                content=payload,
+                status_code=response.status_code,
+                headers=out_headers,
+            )
+
+        return Response(
+            content=response.content,
             status_code=response.status_code,
-            headers=dict(response.headers)
+            media_type=content_type or None,
+            headers=out_headers,
         )
         
     except httpx.RequestError as e:

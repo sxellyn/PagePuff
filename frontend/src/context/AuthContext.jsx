@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react'
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react'
 import { authAPI } from '../services/api'
 
 const AuthContext = createContext(null)
@@ -22,17 +22,22 @@ export const AuthProvider = ({ children }) => {
       
       if (token && userData) {
         const parsedUser = JSON.parse(userData)
-        if (!parsedUser.id && token) {
-          try {
-            const { userAPI } = await import('../services/api')
-            const userInfo = await userAPI.getCurrentUser()
-            const updatedUser = { ...parsedUser, id: userInfo.id, email: userInfo.email }
-            localStorage.setItem('user', JSON.stringify(updatedUser))
-            setUser(updatedUser)
-          } catch {
-            setUser(parsedUser)
+        try {
+          const { userAPI } = await import('../services/api')
+          const userInfo = await userAPI.getCurrentUser()
+          const updatedUser = {
+            ...parsedUser,
+            id: userInfo.id,
+            username: userInfo.username,
+            email: userInfo.email,
+            has_avatar: userInfo.has_avatar === true,
+            avatar_cache_key: userInfo.has_avatar
+              ? parsedUser.avatar_cache_key
+              : null,
           }
-        } else {
+          localStorage.setItem('user', JSON.stringify(updatedUser))
+          setUser(updatedUser)
+        } catch {
           setUser(parsedUser)
         }
       }
@@ -50,7 +55,13 @@ export const AuthProvider = ({ children }) => {
       try {
         const { userAPI } = await import('../services/api')
         const userInfo = await userAPI.getCurrentUser()
-        const userData = { id: userInfo.id, username: userInfo.username, email: userInfo.email }
+        const userData = {
+          id: userInfo.id,
+          username: userInfo.username,
+          email: userInfo.email,
+          has_avatar: userInfo.has_avatar === true,
+          avatar_cache_key: null,
+        }
         localStorage.setItem('user', JSON.stringify(userData))
         setUser(userData)
       } catch {
@@ -86,8 +97,23 @@ export const AuthProvider = ({ children }) => {
     setUser(null)
   }
 
+  const updateUser = useCallback((updates) => {
+    setUser((prev) => {
+      if (!prev) return prev
+      const next = { ...prev, ...updates }
+      if (
+        Object.prototype.hasOwnProperty.call(updates, 'has_avatar') &&
+        !updates.has_avatar
+      ) {
+        next.avatar_cache_key = null
+      }
+      localStorage.setItem('user', JSON.stringify(next))
+      return next
+    })
+  }, [])
+
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, register, logout, updateUser, loading }}>
       {children}
     </AuthContext.Provider>
   )

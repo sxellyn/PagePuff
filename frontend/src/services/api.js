@@ -1,6 +1,15 @@
 import axios from 'axios'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8081'
+export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8081'
+
+export function getAvatarUrl(userId, cacheKey = null) {
+  if (userId == null || userId === '') return null
+  let url = `${API_URL}/user/avatar/${userId}`
+  if (cacheKey != null && cacheKey !== '') {
+    url += `?v=${encodeURIComponent(cacheKey)}`
+  }
+  return url
+}
 
 const api = axios.create({
   baseURL: API_URL,
@@ -11,6 +20,9 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type']
+    }
     const token = localStorage.getItem('token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
@@ -98,6 +110,18 @@ export const favoriteAPI = {
 export const userAPI = {
   getCurrentUser: async () => {
     const response = await api.get('/user/me')
+    return response.data
+  },
+
+  uploadAvatar: async (file) => {
+    const form = new FormData()
+    form.append('file', file)
+    const response = await api.post('/user/me/avatar', form)
+    return response.data
+  },
+
+  deleteAvatar: async () => {
+    const response = await api.delete('/user/me/avatar')
     return response.data
   },
 }

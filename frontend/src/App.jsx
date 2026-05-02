@@ -9,6 +9,7 @@ import Mangas from './pages/Mangas'
 import MangaDetail from './pages/MangaDetail'
 import Favorites from './pages/Favorites'
 import Recommendations from './pages/Recommendations'
+import Profile from './pages/Profile'
 import './App.css'
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
               <Route path="/mangas/:id" element={<MangaDetail />} />
               <Route path="/favorites" element={<Favorites />} />
               <Route path="/recommendations" element={<Recommendations />} />
+              <Route path="/profile" element={<Profile />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>

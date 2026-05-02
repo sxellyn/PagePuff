@@ -11,6 +11,7 @@ services:
       - init_db
     volumes:
       - ./user_service:/app
+    command: uvicorn app.main:pagepuff --host 0.0.0.0 --port 8000 --reload
 
   manga_service:
     build: ./manga_service

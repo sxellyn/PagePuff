@@ -1,5 +1,7 @@
 from sqlalchemy import Column, Integer, String
+from sqlalchemy.dialects.mysql import MEDIUMBLOB
 from app.config.database import AlchemyBaseModel
+
 
 class User(AlchemyBaseModel):
     __tablename__ = "users"
@@ -8,3 +10,5 @@ class User(AlchemyBaseModel):
     username = Column(String(50), unique=True, nullable=False)
     email = Column(String(120), unique=True, nullable=False)
     password = Column(String(255), nullable=False)
+    avatar_blob = Column(MEDIUMBLOB, nullable=True)
+    avatar_mime = Column(String(64), nullable=True)
