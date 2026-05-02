@@ -40,6 +40,20 @@ const Favorites = () => {
     }
   }
 
+  const handleRemoveFavorite = async (e, mangaId) => {
+    e.preventDefault()
+    e.stopPropagation()
+    try {
+      await favoriteAPI.remove(mangaId)
+      setMangas((prev) => prev.filter((m) => m.id !== mangaId))
+      setFavorites((prev) => prev.filter((f) => f.manga_id !== mangaId))
+      setError('')
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Could not remove favorite')
+      console.error(err)
+    }
+  }
+
   if (!user) {
     return (
       <div className="auth-required">
@@ -84,33 +98,37 @@ const Favorites = () => {
       ) : (
         <div className="favorites-grid">
           {mangas.map((manga) => (
-            <Link
-              key={manga.id}
-              to={`/mangas/${manga.id}`}
-              className="favorite-card"
-            >
-              <div className="favorite-cover">
-                {manga.cover ? (
-                  <img src={manga.cover} alt={manga.title} />
-                ) : (
-                  <div className="manga-placeholder">
-                    <FaBook size={48} />
-                  </div>
-                )}
-                <div className="favorite-badge">
-                  <FaHeart />
+            <div key={manga.id} className="favorite-card-wrap">
+              <Link to={`/mangas/${manga.id}`} className="favorite-card">
+                <div className="favorite-cover">
+                  {manga.cover ? (
+                    <img src={manga.cover} alt={manga.title} />
+                  ) : (
+                    <div className="manga-placeholder">
+                      <FaBook size={48} />
+                    </div>
+                  )}
                 </div>
-              </div>
-              <div className="favorite-info">
-                <h3>{manga.title}</h3>
-                {manga.rating && (
-                  <div className="manga-rating">
-                    <FaBook />
-                    <span>{manga.rating.toFixed(1)}</span>
-                  </div>
-                )}
-              </div>
-            </Link>
+                <div className="favorite-info">
+                  <h3>{manga.title}</h3>
+                  {manga.rating && (
+                    <div className="manga-rating">
+                      <FaBook />
+                      <span>{manga.rating.toFixed(1)}</span>
+                    </div>
+                  )}
+                </div>
+              </Link>
+              <button
+                type="button"
+                className="favorite-badge favorite-remove"
+                onClick={(e) => handleRemoveFavorite(e, manga.id)}
+                title="Remover dos favoritos"
+                aria-label={`Remover ${manga.title} dos favoritos`}
+              >
+                <FaHeart />
+              </button>
+            </div>
           ))}
         </div>
       )}

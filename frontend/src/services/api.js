@@ -88,6 +88,11 @@ export const favoriteAPI = {
     const response = await api.post('/user/favorites', { manga_id: mangaId })
     return response.data
   },
+
+  remove: async (mangaId) => {
+    const response = await api.delete(`/user/favorites/${mangaId}`)
+    return response.data
+  },
 }
 
 export const userAPI = {

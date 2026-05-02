@@ -52,6 +52,33 @@ def add_favorite(favorite: FavoriteRequest, db: Session = Depends(connect_db), c
             detail=f"Internal server error: {str(e)}"
         )
 
+@router.delete("/favorites/{manga_id}")
+def remove_favorite(
+    manga_id: int,
+    db: Session = Depends(connect_db),
+    current_user: User = Depends(get_current_user),
+):
+    try:
+        fav = (
+            db.query(Favorite)
+            .filter(Favorite.user_id == current_user.id, Favorite.manga_id == manga_id)
+            .first()
+        )
+        if not fav:
+            raise HTTPException(status_code=404, detail="Favorite not found")
+        db.delete(fav)
+        db.commit()
+        return {"ok": True, "manga_id": manga_id}
+    except HTTPException:
+        raise
+    except SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+
 @router.get("/favorites", response_model=List[FavoriteResponse])
 def get_favorites(db: Session = Depends(connect_db), current_user: User = Depends(get_current_user)):
     try:

@@ -150,35 +150,46 @@ const Mangas = () => {
     }
   }, [user, loadFavorites])
 
-  const handleAddFavorite = useCallback(async (e, mangaId) => {
-    e.preventDefault()
-    e.stopPropagation()
-    
-    if (!user) {
-      return
-    }
-
-    try {
-      setAddingFavorites(prev => ({ ...prev, [mangaId]: true }))
-      await favoriteAPI.add(mangaId)
-      await loadFavorites()
-    } catch (err) {
-      const errorMsg = err.response?.data?.detail || 'Error adding to favorites'
-      if (!errorMsg.includes('already') && !errorMsg.includes('favoritos')) {
-        console.error('Error adding favorite', err)
-      }
-    } finally {
-      setAddingFavorites(prev => ({ ...prev, [mangaId]: false }))
-    }
-  }, [user, loadFavorites])
-
   const favoritesSet = useMemo(() => {
-    return new Set(favorites.map(fav => fav.manga_id))
+    return new Set(favorites.map((fav) => fav.manga_id))
   }, [favorites])
 
-  const isFavorite = useCallback((mangaId) => {
-    return favoritesSet.has(mangaId)
-  }, [favoritesSet])
+  const handleFavoriteClick = useCallback(
+    async (e, mangaId) => {
+      e.preventDefault()
+      e.stopPropagation()
+
+      if (!user) {
+        return
+      }
+
+      const already = favoritesSet.has(mangaId)
+      try {
+        setAddingFavorites((prev) => ({ ...prev, [mangaId]: true }))
+        if (already) {
+          await favoriteAPI.remove(mangaId)
+        } else {
+          await favoriteAPI.add(mangaId)
+        }
+        await loadFavorites()
+      } catch (err) {
+        const errorMsg = err.response?.data?.detail || 'Error updating favorites'
+        if (!errorMsg.includes('already') && !errorMsg.includes('favoritos')) {
+          console.error('Error updating favorite', err)
+        }
+      } finally {
+        setAddingFavorites((prev) => ({ ...prev, [mangaId]: false }))
+      }
+    },
+    [user, loadFavorites, favoritesSet]
+  )
+
+  const isFavorite = useCallback(
+    (mangaId) => {
+      return favoritesSet.has(mangaId)
+    },
+    [favoritesSet]
+  )
 
   const displayedMangas = mangas
 
@@ -373,9 +384,9 @@ const Mangas = () => {
                       {user && (
                         <button
                           className={`manga-card-favorite-btn ${favorite ? 'active' : ''}`}
-                          onClick={(e) => handleAddFavorite(e, manga.id)}
-                          disabled={adding || favorite}
-                          title={favorite ? 'In favorites' : 'Add to favorites'}
+                          onClick={(e) => handleFavoriteClick(e, manga.id)}
+                          disabled={adding}
+                          title={favorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
                         >
                           <FaHeart />
                           {adding ? '...' : favorite ? '💖' : ''}

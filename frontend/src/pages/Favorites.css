@@ -20,6 +20,10 @@
   gap: 2rem;
 }
 
+.favorite-card-wrap {
+  position: relative;
+}
+
 .favorite-card {
   background: var(--surface);
   border-radius: 25px;
@@ -72,6 +76,22 @@
   z-index: 2;
   will-change: transform;
   transform: translateZ(0);
+}
+
+.favorite-remove {
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+  margin: 0;
+}
+
+.favorite-remove:hover {
+  filter: brightness(1.08);
+  transform: scale(1.06) translateZ(0);
+}
+
+.favorite-remove:active {
+  transform: scale(0.96) translateZ(0);
 }
 
 @keyframes heartbeat {

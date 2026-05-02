@@ -45,22 +45,30 @@ const MangaDetail = () => {
     }
   }
 
-  const handleAddFavorite = async () => {
+  const handleFavoriteToggle = async () => {
     if (!user) {
       navigate('/login')
       return
     }
 
+    const mangaId = parseInt(id, 10)
     try {
       setAddingFavorite(true)
       setError('')
-      await favoriteAPI.add(parseInt(id))
-      setIsFavorite(true)
+      if (isFavorite) {
+        await favoriteAPI.remove(mangaId)
+        setIsFavorite(false)
+      } else {
+        await favoriteAPI.add(mangaId)
+        setIsFavorite(true)
+      }
       setTimeout(() => setError(''), 2000)
     } catch (err) {
-      const errorMsg = err.response?.data?.detail || 'Error adding to favorites'
+      const errorMsg = err.response?.data?.detail || 'Error updating favorites'
       if (errorMsg.includes('already') || errorMsg.includes('favoritos')) {
         setIsFavorite(true)
+      } else if (err.response?.status === 404) {
+        setIsFavorite(false)
       } else {
         setError(errorMsg)
       }
@@ -130,17 +138,19 @@ const MangaDetail = () => {
           {user && (
             <>
               <button
-                onClick={handleAddFavorite}
+                onClick={handleFavoriteToggle}
                 className={`btn-favorite ${isFavorite ? 'active' : ''}`}
-                disabled={addingFavorite || isFavorite}
+                disabled={addingFavorite}
               >
                 <FaHeart />
                 <span>
-                  {isFavorite
-                    ? 'In Favorites'
-                    : addingFavorite
-                    ? 'Adding...'
-                    : 'Add to Favorites'}
+                  {addingFavorite
+                    ? isFavorite
+                      ? 'Removendo...'
+                      : 'Adicionando...'
+                    : isFavorite
+                    ? 'Remover dos favoritos'
+                    : 'Adicionar aos favoritos'}
                 </span>
               </button>
               {error && !error.includes('already') && !error.includes('favoritos') && (
