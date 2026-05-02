@@ -95,17 +95,6 @@ async def get_recommendations(
     limit: int = 10,
     db: Session = Depends(get_db)
 ):
-    """
-    Returns manga recommendations for a user using K-Means.
-    
-    The algorithm groups users with similar tastes based on:
-    - Average ratings of favorite mangas
-    - Years of favorite mangas
-    - Most common tags in favorites
-    - Number of favorites
-    
-    Returns favorite mangas from users in the same cluster that the current user doesn't have.
-    """
     try:
         user_check = db.execute(
             text("SELECT id FROM users WHERE id = :user_id"),
@@ -149,20 +138,18 @@ async def get_recommendations(
             rec = get_recommender(db, force_retrain=True)
             print(f"   Model retrained with {len(rec.user_clusters)} users")
         
-        if rec.kmeans is None or user_id not in rec.user_clusters:
-            return {
-                "user_id": user_id,
-                "recommendations": [],
-                "message": "Not enough data to generate recommendations. Add more favorites or wait for more users to join!"
-            }
-        
-        manga_ids = rec.get_recommendations(user_id, db, limit)
-        
+        manga_ids: List[int] = []
+        if rec.kmeans is not None and user_id in rec.user_clusters:
+            manga_ids = rec.get_recommendations(user_id, db, limit)
+
+        if not manga_ids:
+            manga_ids = KMeansRecommender.tag_based_recommendations(user_id, db, limit)
+
         if not manga_ids:
             return {
                 "user_id": user_id,
                 "recommendations": [],
-                "message": "No new recommendations found. Try exploring different mangas!"
+                "message": "No new recommendations found. Try exploring different mangas!",
             }
         
         if len(manga_ids) == 1:
