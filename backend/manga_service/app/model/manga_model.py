@@ -10,11 +10,10 @@ class Manga(AlchemyBaseModel):
     description = Column(Text, nullable=True)
     rating = Column(Float, nullable=True)
     year = Column(Integer, nullable=True)
-    tags = Column(Text, nullable=True)  # TEXT no banco, não JSON
+    tags = Column(Text, nullable=True)
     cover = Column(String(512), nullable=True)
     
     def get_tags(self):
-        """Converte tags de string para lista"""
         if not self.tags:
             return []
         try:

@@ -7,13 +7,11 @@ from app.model.manga_model import Manga
 from app.schema.manga_schema import MangaResponse
 from typing import List, Optional
 from pydantic import BaseModel
-import traceback
 
 router = APIRouter()
 
 @router.get("/mangas/categories")
 def get_categories(db: Session = Depends(get_db)):
-    """Returns all unique available categories"""
     try:
         import json
         mangas = db.query(Manga).all()

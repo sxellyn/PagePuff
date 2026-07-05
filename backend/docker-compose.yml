@@ -65,7 +65,7 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
       - ./sql/init_all_tables.sql:/docker-entrypoint-initdb.d/00-init-all-tables.sql
-      - ./manga_service/sql/MANGAPOPULATE.sql:/docker-entrypoint-initdb.d/01-populate-mangas.sql
+      - ./sql/populate_demo.sql:/docker-entrypoint-initdb.d/01-populate-demo.sql
 
   init_db:
     build: ./init_db_service
@@ -74,7 +74,7 @@ services:
       - mysql
     volumes:
       - ./sql/init_all_tables.sql:/init-scripts/init_all_tables.sql
-      - ./manga_service/sql/MANGAPOPULATE.sql:/init-scripts/MANGAPOPULATE.sql
+      - ./sql/populate_demo.sql:/init-scripts/populate_demo.sql
     environment:
       - MYSQL_HOST=mysql
       - MYSQL_USER=root

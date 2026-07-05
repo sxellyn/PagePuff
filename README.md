@@ -114,6 +114,22 @@ npm run dev
 
 O frontend estará disponível em `http://localhost:3000`
 
+### Contas de Demonstração
+
+Após subir o backend, use estas credenciais para testar login, favoritos e recomendações:
+
+| Usuário | Senha | Perfil |
+|---------|-------|--------|
+| `demo` | `demo123` | Conta principal — favoritos de ação/aventura |
+| `demo_user_1` | `demo123` | Fã de ação |
+| `demo_user_2` | `demo123` | Fã de romance |
+| `demo_user_3` | `demo123` | Fã de comédia |
+| `demo_user_4` | `demo123` | Fã de horror/drama |
+| `demo_user_5` | `demo123` | Fã de romance clássico |
+| `demo_user_6` | `demo123` | Fã de ação clássica |
+
+Os dados ficam em `backend/sql/populate_demo.sql` (30 mangás, 7 usuários e favoritos fixos).
+
 ### Acessos aos Serviços
 
 - **Frontend**: http://localhost:3000

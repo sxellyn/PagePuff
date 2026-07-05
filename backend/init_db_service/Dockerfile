@@ -2,7 +2,7 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-RUN pip install --no-cache-dir pymysql bcrypt
+RUN pip install --no-cache-dir pymysql
 
 COPY main.py .
 

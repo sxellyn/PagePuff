@@ -13,7 +13,6 @@ class MangaResponse(BaseModel):
 
     @validator('tags', pre=True)
     def parse_tags(cls, v):
-        """Converte tags de string para lista"""
         if v is None:
             return []
         if isinstance(v, list):
